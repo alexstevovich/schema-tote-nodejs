@@ -140,6 +140,42 @@ describe('SchemaTote', () => {
         expect(featured.length).toBe(1);
     });
 
+    // 🔹 New Tests for Schema-only accessors
+
+    it('returns only the schema object for a given id', () => {
+        const schema = tote.getSchemaById('example_brand');
+        expect(schema).not.toBeNull();
+        expect(schema['@type']).toBe('Brand');
+        expect(schema.name).toBe('Example Brand');
+    });
+
+    it('returns only the schema object for a given schema @id', () => {
+        const schema = tote.getSchemaBySchemaId('https://example.com#john');
+        expect(schema).not.toBeNull();
+        expect(schema['@type']).toBe('Person');
+    });
+
+    it('returns all schema objects without wrappers', () => {
+        const schemas = tote.getAllSchemas();
+        expect(schemas.length).toBe(4);
+        expect(schemas.every((s) => s['@id'])).toBe(true);
+    });
+
+    it('returns all schemas by @type', () => {
+        const brands = tote.getAllSchemasByType('Brand');
+        const websites = tote.getAllSchemasByType('WebSite');
+        expect(brands.length).toBe(1);
+        expect(websites[0]['@type']).toBe('WebSite');
+    });
+
+    it('returns all schemas by tag', () => {
+        const coreSchemas = tote.getAllSchemasByTag('core');
+        const featuredSchemas = tote.getAllSchemasByTag('featured');
+        expect(coreSchemas.length).toBeGreaterThan(1);
+        expect(featuredSchemas.length).toBe(1);
+        expect(featuredSchemas[0]['@type']).toBe('Product');
+    });
+
     it('returns minimal ref by top-level id', () => {
         const ref = tote.getRefById('john_smith');
         expect(ref).toEqual({

@@ -25,20 +25,25 @@ import SchemaTote from 'schema-tote';
 // Initialize
 const tote = new SchemaTote();
 
-// Load a JSON file (array of entries)
+// Load a JSON file (array of wrapper entries)
 tote.loadFromFile('./data/schema.json');
 
-// Get all entries
-console.log(tote.getAll());
+// 🔹 Retrieve full wrapper entries
+console.log(tote.getAll()); // all entries with id, tags, and schema metadata
+console.log(tote.getById('home')); // full wrapper by id
+console.log(tote.getBySchemaId('https://example.com/#organization')); // wrapper by schema @id
+console.log(tote.getAllBySchemaType('Organization')); // wrappers by @type
+console.log(tote.getAllByType('core')); // wrappers by type
+console.log(tote.getAllByTag('featured')); // wrappers by tag
 
-// Find specific entries
-console.log(tote.getById('home'));
-console.log(tote.getBySchemaId('https://example.com/#organization'));
-console.log(tote.getAllBySchemaType('Organization'));
-console.log(tote.getAllByType('core'));
-console.log(tote.getAllByTag('featured'));
+// 🔹 Retrieve only the inner schema objects
+console.log(tote.getSchemaById('home')); // returns just the schema node
+console.log(tote.getSchemaBySchemaId('https://example.com/#organization'));
+console.log(tote.getAllSchemas()); // all schemas
+console.log(tote.getAllSchemasByType('Organization')); // only schemas of given @type
+console.log(tote.getAllSchemasByTag('featured')); // schemas filtered by tag
 
-// Get compact references
+// 🔹 Retrieve minimal references
 console.log(tote.getRefById('home'));
 console.log(tote.getRefBySchemaId('https://example.com/#person'));
 
@@ -66,48 +71,77 @@ console.log(tote.getRefBySchemaId('https://example.com/#person'));
     }
 ]
 */
+
+// Example schema-only results:
+[
+    {
+        '@type': 'WebPage',
+        '@id': 'https://example.com/#home',
+        name: 'Home',
+    },
+    {
+        '@type': 'Organization',
+        '@id': 'https://example.com/#organization',
+        name: 'Example Inc.',
+    },
+];
 ```
 
 ## Methods
 
 ### `loadFromFile(filePath)`
 
-Reads a `.json` file containing an array of schema entries and appends them to the tote.
+Reads a `.json` file containing an array of schema entries and appends them to the tote.  
+Each entry should be a wrapper object containing `{ id, type, tags, schema }`.
 
 ### `reloadFromFile(filePath)`
 
-Clears existing data and reloads entries from disk.
+Clears all previously loaded data and reloads from disk.
 
 ---
 
 ## Retrieval
 
-| Method                     | Returns          | Description                                                 |
-| -------------------------- | ---------------- | ----------------------------------------------------------- |
-| `getAll()`                 | `Array<Object>`  | Returns all entries.                                        |
-| `getById(id)`              | `Object \| null` | Gets an entry by its top-level `id`.                        |
-| `getBySchemaId(schemaId)`  | `Object \| null` | Finds an entry by its schema’s `@id`.                       |
-| `getAllBySchemaType(type)` | `Array<Object>`  | Returns all entries whose schema has a given `@type`.       |
-| `getAllByType(type)`       | `Array<Object>`  | Returns all entries with the specified top-level `type`.    |
-| `getAllByTag(tag)`         | `Array<Object>`  | Returns entries tagged with a given tag (case-insensitive). |
+> Retrieval methods come in two forms:
+>
+> - **Wrapper getters** return the full entry with metadata (`id`, `type`, `tags`, and `schema`).
+> - **Schema getters** return only the inner JSON-LD schema object itself.
+
+| Method                     | Returns          | Description                                                            |
+| -------------------------- | ---------------- | ---------------------------------------------------------------------- |
+| `getAll()`                 | `Array<Object>`  | Returns all wrapper entries.                                           |
+| `getById(id)`              | `Object \| null` | Returns a wrapper by its top-level `id`.                               |
+| `getBySchemaId(schemaId)`  | `Object \| null` | Returns a wrapper by its inner schema’s `@id`.                         |
+| `getAllBySchemaType(type)` | `Array<Object>`  | Returns all wrapper entries whose inner schema has the given `@type`.  |
+| `getAllByType(type)`       | `Array<Object>`  | Returns all wrapper entries with the specified top-level `type`.       |
+| `getAllByTag(tag)`         | `Array<Object>`  | Returns all wrapper entries containing a given tag (case-insensitive). |
+
+---
+
+## Schema Accessors
+
+> These functions directly return **only the inner schema** objects  
+> instead of their outer wrapper metadata.
+
+| Method                          | Returns          | Description                                                                                       |
+| ------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------- |
+| `getSchemaById(id)`             | `Object \| null` | Returns the schema object for the given top-level `id`.                                           |
+| `getSchemaBySchemaId(schemaId)` | `Object \| null` | Returns the schema object for the given schema `@id`.                                             |
+| `getAllSchemas()`               | `Array<Object>`  | Returns all inner schema objects, stripping away wrapper data.                                    |
+| `getAllSchemasByType(type)`     | `Array<Object>`  | Returns all schema objects whose `@type` matches the provided type.                               |
+| `getAllSchemasByTag(tag)`       | `Array<Object>`  | Returns all schema objects belonging to wrappers tagged with the provided tag (case-insensitive). |
 
 ---
 
 ## References
 
-| Method                       | Returns                                    | Description                                                |
-| ---------------------------- | ------------------------------------------ | ---------------------------------------------------------- |
-| `getRefById(id)`             | `{"@type": string, "@id": string} \| null` | Returns a minimal schema ref for an entry by `id`.         |
-| `getRefBySchemaId(schemaId)` | `{"@type": string, "@id": string} \| null` | Returns a minimal schema ref for an entry by schema `@id`. |
+> Reference helpers return a minimal schema reference containing only  
+> `@type` and `@id`, suitable for lightweight linking between schemas.
 
----
-
-## Use Cases
-
-- Generate structured data for SEO and open-graph pipelines.
-- Manage site-wide schema objects for pages, brands, or products.
-- Feed JSON-LD into templating systems or static-site generators.
-- Maintain a consistent registry of entities across multiple schemas.
+| Method                       | Returns                                    | Description                                                 |
+| ---------------------------- | ------------------------------------------ | ----------------------------------------------------------- |
+| `getRefById(id)`             | `{"@type": string, "@id": string} \| null` | Returns a minimal reference for the schema found by `id`.   |
+| `getRefBySchemaId(schemaId)` | `{"@type": string, "@id": string} \| null` | Returns a minimal reference for the schema with that `@id`. |
 
 ## License
 

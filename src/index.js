@@ -73,6 +73,30 @@ class SchemaTote {
         return this.data.filter((d) => d.type === type);
     }
 
+    /** Return just the schema object for a given top-level id. */
+    getSchemaById(id) {
+        const item = this.getById(id);
+        return item ? item.schema || null : null;
+    }
+
+    /** Return just the schema object for a given @id. */
+    getSchemaBySchemaId(schemaId) {
+        const item = this.getBySchemaId(schemaId);
+        return item ? item.schema || null : null;
+    }
+
+    /** Return an array of all schema objects (no wrappers). */
+    getAllSchemas() {
+        return this.data.map((d) => d.schema).filter((s) => !!s);
+    }
+
+    /** Return all schema objects of a given @type. */
+    getAllSchemasByType(schemaType) {
+        return this.data
+            .map((d) => d.schema)
+            .filter((s) => s && s['@type'] === schemaType);
+    }
+
     /** Get all entries containing a given tag. */
     getAllByTag(tag) {
         return this.data.filter(
@@ -80,6 +104,20 @@ class SchemaTote {
                 Array.isArray(d.tags) &&
                 d.tags.map((t) => t.toLowerCase()).includes(tag.toLowerCase()),
         );
+    }
+
+    /** Get all schema objects containing a given tag. */
+    getAllSchemasByTag(tag) {
+        return this.data
+            .filter(
+                (d) =>
+                    Array.isArray(d.tags) &&
+                    d.tags
+                        .map((t) => t.toLowerCase())
+                        .includes(tag.toLowerCase()) &&
+                    d.schema,
+            )
+            .map((d) => d.schema);
     }
 
     /** Return minimal ref of entry by id. */
