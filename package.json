@@ -1,0 +1,45 @@
+{
+    "name": "script-tote",
+    "version": "1.0.0",
+    "homepage": "https://alexstevovich.com/a/schema-tote-nodejs",
+    "author": {
+        "name": "Alex Stevovich",
+        "email": "dev@alexstevovich.com",
+        "url": "https://alexstevovich.com"
+    },
+    "description": "A structured registry and loader for JSON-LD schema definitions and metadata entries",
+    "type": "module",
+    "main": "./src/index.js",
+    "files": [
+        "./src"
+    ],
+    "license": "Apache-2.0",
+    "scripts": {
+        "poshify": "npx poshify",
+        "pretty": "npx prettier --write .",
+        "lint": "eslint ./src/",
+        "lint:fix": "eslint --fix ./src/",
+        "test": "npx vitest --run",
+        "build": "npm run poshify && npm run pretty && npm run lint:fix && npm run lint"
+    },
+    "keywords": [
+        "schema",
+        "json-ld",
+        "structured-data",
+        "metadata",
+        "webstandard",
+        "semantic-web",
+        "registry",
+        "data-management",
+        "schema-org",
+        "tote"
+    ],
+    "devDependencies": {
+        "eslint": "^9.36.0",
+        "eslint-plugin-import": "^2.32.0",
+        "eslint-plugin-prettier": "^5.5.4",
+        "poshify": "^1.0.0",
+        "prettier": "^3.6.2",
+        "vitest": "^3.2.4"
+    }
+}
